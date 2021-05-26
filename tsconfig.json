@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+        "esModuleInterop": true,
+        "lib": [
+            "es2015",
+            "esnext",
+            "dom"
+        ],
+        "module": "commonjs",
+        "target": "esnext",
+        "moduleResolution": "node",
+        "alwaysStrict": true,
+        "outDir": "./build",
+        "declaration": true,
+        "preserveSymlinks": true,
+        "preserveWatchOutput": true,
+        "pretty": false,
+        "forceConsistentCasingInFileNames": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": false,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "experimentalDecorators": true,
+        "resolveJsonModule": true,
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.test.ts"
+  ]
+}
