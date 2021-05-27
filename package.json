@@ -3,6 +3,12 @@
   "version": "1.0.0-beta.2",
   "license": "UNLICENSED",
   "description": "SDK for NEAR Protocol",
+  "keywords": [
+    "blockchain",
+    "crypto",
+    "dapps",
+    "nearprotocol"
+  ],
   "repository": "https://github.com/4ire-labs/near-sdk.git",
   "main": "index.js",
   "types": "index.d.ts",
@@ -17,7 +23,7 @@
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "docs": "typedoc --entryPoints src/index.ts --out build/docs",
     "release": "yarn version --prerelease && yarn build",
-    "package": "mkdir -p build && json-mask 'name,version,license,description,repository,main,types,dependencies' package.json > build/package.json && cp readme.md build/readme.md",
+    "package": "mkdir -p build && json-mask 'name,version,license,description,repository,main,types,dependencies,keywords' package.json > build/package.json && cp readme.md build/readme.md",
     "build": "yarn package && tsc || exit 0",
     "qa": "yarn lint && yarn test",
     "test-example": "yarn build && cd example && yarn install && yarn test",
