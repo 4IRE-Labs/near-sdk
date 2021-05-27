@@ -14,7 +14,7 @@ const expectAccount = <account.AccountNetwork>{
 }
 
 test('credentialsPath', async () => {
-  expect(account.credentialsPath()).toContain('/local')
+  expect(account.credentialsPath()).toContain('/.near')
 })
 
 test('parseAccountNetwork', async () => {
