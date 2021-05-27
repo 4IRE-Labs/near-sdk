@@ -6,8 +6,6 @@
 - `Node.js` https://github.com/nvm-sh/nvm
 - `yarn` https://yarnpkg.com/getting-started/install
 - `docker` and `docker-compose` https://docs.docker.com/engine/install
-- `HTTPie` https://httpie.io/
-- `jq` https://stedolan.github.io/jq/download/
 
 # Work flow
 

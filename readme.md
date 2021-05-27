@@ -5,6 +5,8 @@
   </p>
 </div>
 
+[![Coverage Status](https://coveralls.io/repos/github/4IRE-Labs/near-sdk/badge.svg?branch=main)](https://coveralls.io/github/4IRE-Labs/near-sdk?branch=main)
+
 # Install
 
 ```shell
