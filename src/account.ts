@@ -6,7 +6,7 @@ import BN from 'bn.js'
 import {ConnectParam, newConnect, parseAccountId, parseNetworkId, parsePrivateKey} from './connect'
 import {FinalExecutionOutcome} from 'near-api-js/src/providers/index'
 import {KeyPairEd25519} from 'near-api-js/src/utils/key_pair'
-import {Environment} from './config'
+import {environment, Environment} from './config'
 import {transactionLastResult} from './transaction'
 
 const CREDENTIALS_DIR = '.near-credentials'
@@ -33,8 +33,9 @@ export interface CreateAccountResult {
 
 export function custodianAccount(accountId: string, custodian?: AccountNetwork): AccountNetwork {
     custodian = custodian || parseAccountNetwork()
+    const env = environment(custodian.networkId)
     return <AccountNetwork>{
-        accountId,
+        accountId: `${accountId}.${env.helperAccount}`,
         networkId: custodian.networkId,
         keyPair: custodian.keyPair,
     }
@@ -112,7 +113,12 @@ export function mnemonicToAccount(phrase: string, accountId?: string, networkId?
     const mnemonic = parseSeedPhrase(phrase)
     const account = <AccountNetwork>{}
     account.networkId = parseNetworkId(networkId)
-    account.accountId = accountId || Buffer.from(utils.PublicKey.fromString(mnemonic.publicKey).data).toString('hex')
+    if (accountId) {
+        const env = environment(account.networkId)
+        account.accountId = `${accountId}.${env.helperAccount}`
+    } else {
+        account.accountId = Buffer.from(utils.PublicKey.fromString(mnemonic.publicKey).data).toString('hex')
+    }
     account.keyPair = <KeyPairEd25519>KeyPair.fromString(mnemonic.secretKey)
     return account
 }

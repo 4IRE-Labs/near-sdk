@@ -7,6 +7,7 @@ import * as dotenv from 'dotenv'
 import * as path from 'path'
 dotenv.config({ path: path.join(path.dirname(__dirname), 'test.env') })
 
+const expectMnemonic = 'coral maze mimic half fat breeze thought choice drastic boss bacon middle'
 const expectAccount = <account.AccountNetwork>{
   networkId: 'local',
   accountId: '47d322f48bf873ad10c1b6ed2253518d3d3e0cad9a1a72a9c62b311400b72c7a',
@@ -24,7 +25,7 @@ test('parseAccountNetwork', async () => {
 })
 
 test('generateMnemonic', async () => {
-  expect(account.generateMnemonic(Buffer.from('0123456789ABCDEF'))).toStrictEqual('coral maze mimic half fat breeze thought choice drastic boss bacon middle')
+  expect(account.generateMnemonic(Buffer.from('0123456789ABCDEF'))).toStrictEqual(expectMnemonic)
 })
 
 test('generateAccount', async () => {
@@ -43,6 +44,11 @@ test('createAccount', async () => {
 })
 
 test('createCustodianAccount', async () => {
-  const trx = await account.createCustodianAccount(`${+ new Date}.local`)
+  const trx = await account.createCustodianAccount(`${+ new Date}`)
   expect(trx.value).toBeTruthy()
+})
+
+test('mnemonicToAccount', async () => {
+  const actual = await account.mnemonicToAccount(expectMnemonic, 'sample')
+  expect(actual.accountId).toBe('sample.local')
 })

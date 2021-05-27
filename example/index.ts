@@ -10,7 +10,8 @@ async function main() {
     const mnemonic = near.generateMnemonic(entropy)
     console.log('mnemonic:', mnemonic)
 
-    // Implicit Account https://docs.near.org/docs/roles/integrator/implicit-accounts
+    // Implicit Account
+    // https://docs.near.org/docs/roles/integrator/implicit-accounts
     const newImplicitAccount = near.mnemonicToAccount(mnemonic)
     console.log('Implicit Account:', {
         accountId: newImplicitAccount.accountId,
@@ -28,7 +29,7 @@ async function main() {
     let newAccount: near.AccountNetwork
 
     // Normal Account
-    newAccount = near.mnemonicToAccount(mnemonic, `${+new Date}.testnet`)
+    newAccount = near.mnemonicToAccount(mnemonic, `sample${+new Date}`)
     console.log('Normal Account:', {
         accountId: newAccount.accountId,
         publicKey: newAccount.keyPair.publicKey.toString(),
@@ -39,7 +40,7 @@ async function main() {
     console.log(result.value)
 
     // Custodial Account
-    newAccount = near.custodianAccount(`${+new Date}.testnet`, sender)
+    newAccount = near.custodianAccount(`sample${+new Date}`, sender)
     console.log('Custodial Account:', {
         accountId: newAccount.accountId,
         publicKey: newAccount.keyPair.publicKey.toString(),
