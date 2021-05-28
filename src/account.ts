@@ -6,6 +6,7 @@ import BN from 'bn.js'
 import * as connect from './connect'
 import * as config from './config'
 import * as transaction from './transaction'
+import * as provider from 'near-api-js/lib/providers/provider'
 
 const CREDENTIALS_DIR = '.near-credentials'
 
@@ -13,6 +14,21 @@ export interface AccountNetwork {
     networkId: string
     accountId: string
     keyPair: api.utils.KeyPairEd25519
+}
+
+export async function accountConnect(account: AccountNetwork): Promise<api.Account> {
+    const param = await connect.connectConfigByAccount(account)
+    const near = await connect.newConnect(param)
+    return near.account(account.accountId)
+}
+
+export async function stateAccount(accountNetwork: AccountNetwork): Promise<provider.AccountView> {
+    const account = await accountConnect(accountNetwork)
+    return account.state()
+}
+
+export async function isExistAccount(accountNetwork: AccountNetwork): Promise<boolean> {
+    return stateAccount(accountNetwork).then(() => true).catch(() => false)
 }
 
 export function custodianAccount(accountId: string, custodian?: AccountNetwork): AccountNetwork {

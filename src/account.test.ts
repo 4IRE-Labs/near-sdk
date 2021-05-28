@@ -37,8 +37,10 @@ test('unencryptedFileSystemKeyStore', async () => {
 
 test('createAccount', async () => {
   const bob = near.generateAccount(`bob${+ new Date}`)
+  expect(await near.isExistAccount(bob)).toBe(false)
   const trx = await near.createAccount(near.parseAccountNetwork(), bob)
   expect(trx.value).toBe(true)
+  expect(await near.isExistAccount(bob)).toBe(true)
 })
 
 test('createAccount fail by deposit', async () => {
@@ -58,4 +60,9 @@ test('createCustodianAccount', async () => {
 test('mnemonicToAccount', async () => {
   const actual = await near.mnemonicToAccount(expectMnemonic, 'sample')
   expect(actual.accountId).toBe('sample.local')
+})
+
+test('isExistAccount', async () => {
+  const sample = await near.mnemonicToAccount(expectMnemonic, 'sample')
+  expect(await near.isExistAccount(sample)).toBe(false)
 })
