@@ -1,11 +1,11 @@
-import {FinalExecutionOutcome} from 'near-api-js/src/providers/index'
+import * as provider from 'near-api-js/lib/providers/provider'
 
 export interface Outcome<Type> {
     value: Type
-    outcome: FinalExecutionOutcome
+    outcome: provider.FinalExecutionOutcome
 }
 
-export function transactionOutcome<Type>(outcome: FinalExecutionOutcome): Outcome<Type> {
+export function transactionOutcome<Type>(outcome: provider.FinalExecutionOutcome): Outcome<Type> {
     const result = <Outcome<Type>>{
         outcome
     }
