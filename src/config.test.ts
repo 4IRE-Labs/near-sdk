@@ -1,5 +1,13 @@
 import * as near from '.'
 
+test('getting param form env', async () => {
+  const expected = 'foo'
+  process.env.NEAR_NODE_URL = expected
+  expect(await near.environment('local').nodeUrl).toBe(expected)
+  expect(await near.environment('mainnet').nodeUrl).toBe(expected)
+  process.env.NEAR_NODE_URL = ''
+})
+
 test('connectConfig local', async () => {
   const expected = {
     'explorerUrl': 'http://localhost:9001',

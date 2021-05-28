@@ -12,7 +12,7 @@ export interface Environment {
 function standardEnvironment(networkId:string, helperAccount?: string): Environment {
     return {
         networkId: networkId,
-        nodeUrl: `https://rpc.${networkId}.near.org`,
+        nodeUrl: process.env.NEAR_NODE_URL || `https://rpc.${networkId}.near.org`,
         walletUrl: `https://wallet${networkId !== 'mainnet' ? `.${networkId}`: ''}.near.org`,
         helperUrl: `https://helper.${networkId}.near.org`,
         helperAccount: helperAccount || networkId,
@@ -31,7 +31,7 @@ function localEnvironment(port?:EnvironmentPort): Environment {
     port = port || <EnvironmentPort>{}
     return {
         networkId: 'local',
-        nodeUrl: `http://localhost:${port.node || 3030}`,
+        nodeUrl: process.env.NEAR_NODE_URL || `http://localhost:${port.node || 3030}`,
         walletUrl: `http://localhost:${port.wallet || 4000}/wallet`,
         helperUrl: `http://localhost:${port.wallet || 3000}`,
         helperAccount: 'local',
