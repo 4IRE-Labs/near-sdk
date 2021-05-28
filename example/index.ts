@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 async function main() {
+    const deposit = '0.05'
     const entropy = Buffer.from('0123456789ABCDEF')
     const mnemonic = near.generateMnemonic(entropy)
     console.log('mnemonic:', mnemonic)
@@ -32,9 +33,10 @@ async function main() {
         publicKey: newAccount.keyPair.publicKey.toString(),
     })
     await near.writeUnencryptedFileSystemKeyStore(newAccount)
-    trx = await near.createAccount(sender, newAccount)
+    trx = await near.createAccount(sender, newAccount, deposit)
     console.log(trx.outcome.transaction.hash)
-    console.log(trx.value)
+    trx = await near.deleteAccount(newAccount)
+    console.log(trx.outcome.transaction.hash)
 
     // Custodial Account
     newAccount = near.custodianAccount(`sample${+new Date}`, sender)
@@ -43,9 +45,11 @@ async function main() {
         publicKey: newAccount.keyPair.publicKey.toString(),
     })
     await near.writeUnencryptedFileSystemKeyStore(newAccount)
-    trx = await near.createAccount(sender, newAccount)
+    trx = await near.createAccount(sender, newAccount, deposit)
     console.log(trx.outcome.transaction.hash)
-    console.log(trx.value)
+    console.log('state:', await near.stateAccount(newAccount))
+    trx = await near.deleteAccount(newAccount)
+    console.log(trx.outcome.transaction.hash)
 }
 
 main().catch(console.error)

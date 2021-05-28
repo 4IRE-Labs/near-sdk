@@ -16,9 +16,15 @@ export interface AccountNetwork {
     keyPair: api.utils.KeyPairEd25519
 }
 
+export async function deleteAccount(pruneAccount: AccountNetwork, beneficiary?: AccountNetwork): Promise<transaction.Outcome<boolean>> {
+    beneficiary = beneficiary || parseAccountNetwork()
+    const account = await accountConnect(pruneAccount)
+    return account.deleteAccount(beneficiary.accountId)
+        .then(outcome => transaction.transactionOutcome(outcome))
+}
+
 export async function accountConnect(account: AccountNetwork): Promise<api.Account> {
-    const param = await connect.connectConfigByAccount(account)
-    const near = await connect.newConnect(param)
+    const near = await connect.newConnect(account)
     return near.account(account.accountId)
 }
 
@@ -52,8 +58,7 @@ export async function createCustodianAccount(accountId: string, amount = '0.05',
 }
 
 export async function createAccount(creator: AccountNetwork, newAccount: AccountNetwork, amount = '0.05'): Promise<transaction.Outcome<boolean>> {
-    const param = await connect.connectConfigByAccount(creator)
-    const near = await connect.newConnect(param)
+    const near = await connect.newConnect(creator)
     const creatorAccount = await near.account(creator.accountId)
     const config = <config.Environment>near.config
     const deposit = api.utils.format.parseNearAmount(amount)

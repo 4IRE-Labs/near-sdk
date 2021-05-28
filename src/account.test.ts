@@ -43,6 +43,17 @@ test('createAccount', async () => {
   expect(await near.isExistAccount(bob)).toBe(true)
 })
 
+test('deleteAccount', async () => {
+  jest.setTimeout(10000)
+  const bob = near.generateAccount(`bob${+ new Date}`)
+  expect(await near.isExistAccount(bob)).toBe(false)
+  await near.createAccount(near.parseAccountNetwork(), bob)
+  expect(await near.isExistAccount(bob)).toBe(true)
+  const trx = await near.deleteAccount(bob)
+  expect(trx.value).toBe('')
+  expect(await near.isExistAccount(bob)).toBe(false)
+})
+
 test('createAccount fail by deposit', async () => {
   try {
     await near.createCustodianAccount(`${+ new Date}`, '')

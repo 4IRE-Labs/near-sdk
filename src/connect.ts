@@ -47,7 +47,6 @@ export async function connectConfigByParam(param?: ConnectParam): Promise<api.Co
     }
 }
 
-export async function newConnect(param?: ConnectParam): Promise<api.Near> {
-    const config = await connectConfigByParam(param)
-    return api.connect(config)
+export async function newConnect(account: account.AccountNetwork): Promise<api.Near> {
+    return api.connect(await connectConfigByAccount(account))
 }
