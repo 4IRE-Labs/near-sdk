@@ -19,14 +19,15 @@
   "scripts": {
     "coveralls": "coveralls < coverage/lcov.info",
     "setup": "docker-compose up --detach && bash -x script/setup.sh",
-    "clean": "docker-compose down --volumes && rm -rf build coverage local node_modules example/node_modules example/*lock*",
+    "clean-example": "rm -rf example/node_modules example/*lock*",
+    "clean": "docker-compose down --volumes && rm -rf build coverage node_modules && yarn clean-example",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "docs": "typedoc --entryPoints src/index.ts --out build/docs",
     "release": "yarn version --prerelease && yarn build",
     "package": "mkdir -p build && json-mask 'name,version,license,description,repository,main,types,dependencies,keywords' package.json > build/package.json && cp readme.md build/readme.md",
     "build": "yarn package && tsc || exit 0",
-    "qa": "yarn lint && yarn test",
-    "test-example": "yarn build && cd example && yarn install && yarn test",
+    "qa": "yarn lint && yarn test && yarn test-example",
+    "test-example": "yarn build && yarn clean-example && cd example && yarn install && yarn test",
     "test": "jest --coverage"
   },
   "eslintConfig": {

@@ -1,4 +1,4 @@
 export * from './config'
-export * as connect from './connect'
-export * as account from './account'
-export * as transaction from './transaction'
+export * from './connect'
+export * from './account'
+export * from './transaction'

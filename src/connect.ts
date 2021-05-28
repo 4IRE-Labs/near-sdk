@@ -1,6 +1,6 @@
-import {ConnectConfig} from 'near-api-js/src/connect'
-import {connect, KeyPair, keyStores, Near} from 'near-api-js'
-import {environment} from './config'
+import * as api from 'near-api-js'
+import * as config from './config'
+import * as account from './account'
 
 export interface ConnectParam {
     networkId?: string
@@ -20,7 +20,16 @@ export function parsePrivateKey(encodedKey?: string): string {
     return encodedKey || process.env.NEAR_SENDER_PRIVATE_KEY || ''
 }
 
-export async function connectConfig(param?: ConnectParam): Promise<ConnectConfig> {
+export async function connectConfigByAccount(account: account.AccountNetwork): Promise<api.ConnectConfig> {
+    const param = <ConnectParam>{
+        networkId: account.networkId,
+        accountId: account.accountId,
+        encodedKey: account.keyPair.secretKey,
+    }
+    return connectConfigByParam(param)
+}
+
+export async function connectConfigByParam(param?: ConnectParam): Promise<api.ConnectConfig> {
     param = param || <ConnectParam>{}
     param.networkId = parseNetworkId(param.networkId)
     param.accountId = parseAccountId(param.accountId)
@@ -29,16 +38,16 @@ export async function connectConfig(param?: ConnectParam): Promise<ConnectConfig
     if (!param.encodedKey || !param.accountId) {
         throw new Error('Error: empty encodedKey or accountId')
     }
-    const keyStore = new keyStores.InMemoryKeyStore()
-    const keyPair = KeyPair.fromString(param.encodedKey)
+    const keyStore = new api.keyStores.InMemoryKeyStore()
+    const keyPair = api.KeyPair.fromString(param.encodedKey)
     await keyStore.setKey(param.networkId, param.accountId, keyPair)
     return {
         keyStore,
-        ...environment(param.networkId),
+        ...config.environment(param.networkId),
     }
 }
 
-export async function newConnect(param?: ConnectParam): Promise<Near> {
-    const config = await connectConfig(param)
-    return connect(config)
+export async function newConnect(param?: ConnectParam): Promise<api.Near> {
+    const config = await connectConfigByParam(param)
+    return api.connect(config)
 }

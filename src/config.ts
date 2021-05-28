@@ -1,4 +1,4 @@
-import {parseNetworkId} from './connect'
+import * as connect from './connect'
 
 export interface Environment {
     networkId: string,
@@ -40,7 +40,7 @@ function localEnvironment(port?:EnvironmentPort): Environment {
 }
 
 export function environment(name?: string): Environment {
-    name = parseNetworkId(name)
+    name = connect.parseNetworkId(name)
     switch (name) {
         case 'production':
         case 'mainnet':

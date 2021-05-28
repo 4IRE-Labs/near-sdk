@@ -1,6 +1,4 @@
-import {
-  environment,
-} from '.'
+import * as near from '.'
 
 test('connectConfig local', async () => {
   const expected = {
@@ -11,7 +9,7 @@ test('connectConfig local', async () => {
     'nodeUrl': 'http://localhost:3030',
     'walletUrl': 'http://localhost:4000/wallet'
   }
-  expect(await environment('local')).toStrictEqual(expected)
+  expect(await near.environment('local')).toStrictEqual(expected)
 })
 
 test('connectConfig default', async () => {
@@ -23,9 +21,9 @@ test('connectConfig default', async () => {
     'nodeUrl': 'https://rpc.testnet.near.org',
     'walletUrl': 'https://wallet.testnet.near.org'
   }
-  expect(await environment()).toStrictEqual(expected)
-  expect(await environment('development')).toStrictEqual(expected)
-  expect(await environment('testnet')).toStrictEqual(expected)
+  expect(await near.environment()).toStrictEqual(expected)
+  expect(await near.environment('development')).toStrictEqual(expected)
+  expect(await near.environment('testnet')).toStrictEqual(expected)
 })
 
 test('connectConfig main', async () => {
@@ -37,8 +35,8 @@ test('connectConfig main', async () => {
     'nodeUrl': 'https://rpc.mainnet.near.org',
     'walletUrl': 'https://wallet.near.org'
   }
-  expect(await environment('production')).toStrictEqual(expected)
-  expect(await environment('mainnet')).toStrictEqual(expected)
+  expect(await near.environment('production')).toStrictEqual(expected)
+  expect(await near.environment('mainnet')).toStrictEqual(expected)
 })
 
 test('connectConfig beta', async () => {
@@ -50,5 +48,5 @@ test('connectConfig beta', async () => {
     'nodeUrl': 'https://rpc.betanet.near.org',
     'walletUrl': 'https://wallet.betanet.near.org'
   }
-  expect(await environment('betanet')).toStrictEqual(expected)
+  expect(await near.environment('betanet')).toStrictEqual(expected)
 })

@@ -1,13 +1,21 @@
 import {FinalExecutionOutcome} from 'near-api-js/src/providers/index'
 
-export function transactionLastResult(outcome: FinalExecutionOutcome): any {
+export interface Outcome<Type> {
+    value: Type
+    outcome: FinalExecutionOutcome
+}
+
+export function transactionOutcome<Type>(outcome: FinalExecutionOutcome): Outcome<Type> {
+    const result = <Outcome<Type>>{
+        outcome
+    }
     if (typeof outcome.status === 'object' && typeof outcome.status.SuccessValue === 'string') {
         const value = Buffer.from(outcome.status.SuccessValue, 'base64').toString()
         try {
-            return JSON.parse(value)
+            result.value = <Type>JSON.parse(value)
         } catch (e) {
-            return value
+            result.value = <Type><unknown>value
         }
     }
-    return null
+    return result
 }

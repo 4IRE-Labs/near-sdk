@@ -22,10 +22,7 @@ NEAR_SENDER_PRIVATE_KEY=ed25519:data
 ```
 
 ```typescript
-import {
-    account as near,
-} from '@4ire-labs/near-sdk'
-
+import * as near from '@4ire-labs/near-sdk'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
@@ -49,7 +46,7 @@ async function main() {
         accountId: sender.accountId,
         publicKey: sender.keyPair.publicKey.toString(),
     })
-    let result: near.CreateAccountResult
+    let trx: near.Outcome<boolean>
     let newAccount: near.AccountNetwork
 
     // Normal Account
@@ -59,9 +56,9 @@ async function main() {
         publicKey: newAccount.keyPair.publicKey.toString(),
     })
     await near.writeUnencryptedFileSystemKeyStore(newAccount)
-    result = await near.createAccount(sender, newAccount)
-    console.log(result.outcome.transaction.hash)
-    console.log(result.value)
+    trx = await near.createAccount(sender, newAccount)
+    console.log(trx.outcome.transaction.hash)
+    console.log(trx.value)
 
     // Custodial Account
     newAccount = near.custodianAccount(`sample${+new Date}`, sender)
@@ -70,10 +67,12 @@ async function main() {
         publicKey: newAccount.keyPair.publicKey.toString(),
     })
     await near.writeUnencryptedFileSystemKeyStore(newAccount)
-    result = await near.createAccount(sender, newAccount)
-    console.log(result.outcome.transaction.hash)
-    console.log(result.value)
+    trx = await near.createAccount(sender, newAccount)
+    console.log(trx.outcome.transaction.hash)
+    console.log(trx.value)
 }
 
 main().catch(console.error)
 ```
+
+## [🧙‍♂ Docs for develop 🧝‍♀️](https://github.com/4IRE-Labs/near-sdk/blob/main/docs/readme.md#develop-docs)

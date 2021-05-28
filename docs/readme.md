@@ -1,4 +1,4 @@
-# Develop docs
+# Docs for develop
 
 ## Environment require
 
@@ -6,8 +6,9 @@
 - `Node.js` https://github.com/nvm-sh/nvm
 - `yarn` https://yarnpkg.com/getting-started/install
 - `docker` and `docker-compose` https://docs.docker.com/engine/install
+- `jq` https://stedolan.github.io/jq/download/
 
-# Work flow
+## Work flow
 
 Install deeps
 ```shell
@@ -21,8 +22,7 @@ yarn setup
 
 Run test
 ```shell
-yarn test
-yarn lint
+yarn qa
 ```
 
 Build
