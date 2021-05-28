@@ -1,6 +1,6 @@
 {
   "name": "@4ire-labs/near-sdk",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "license": "UNLICENSED",
   "description": "SDK for NEAR Protocol",
   "keywords": [
@@ -23,7 +23,7 @@
     "clean": "docker-compose down --volumes && rm -rf build coverage node_modules && yarn clean-example",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "docs": "typedoc --entryPoints src/index.ts --out build/docs",
-    "release": "yarn version --prerelease && yarn build",
+    "release": "yarn version --prerelease && yarn build && cd build && npm publish --access public",
     "package": "mkdir -p build && json-mask 'name,version,license,description,repository,main,types,dependencies,keywords' package.json > build/package.json && cp readme.md build/readme.md",
     "build": "yarn package && tsc || exit 0",
     "qa": "yarn lint && yarn test && yarn test-example",
