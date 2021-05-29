@@ -1,6 +1,6 @@
 {
   "name": "@4ire-labs/near-sdk",
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0-beta.6",
   "license": "UNLICENSED",
   "description": "SDK for NEAR Protocol",
   "keywords": [
@@ -22,7 +22,7 @@
     "setup": "yarn up && yarn setup-near",
     "up": "yarn down && docker-compose up --detach",
     "down": "docker-compose down --volumes",
-    "clean-example": "rm -rf example/node_modules example/*lock*",
+    "clean-example": "rm -rf example/node_modules example/*lock* example/.near",
     "clean": "docker-compose down --volumes && rm -rf build coverage node_modules && yarn clean-example",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "docs": "typedoc --entryPoints src/index.ts --out build/docs",
@@ -30,7 +30,7 @@
     "package": "mkdir -p build && json-mask 'name,version,license,description,repository,main,types,dependencies,keywords' package.json > build/package.json && cp readme.md build/readme.md",
     "build": "yarn package && tsc",
     "qa": "yarn lint && yarn test && yarn test-example",
-    "test-example": "yarn build && yarn clean-example && cd example && yarn install && yarn test",
+    "test-example": "yarn build && yarn clean-example && cp test.env example/.env && cd example && yarn install && yarn test",
     "test": "jest --coverage"
   },
   "eslintConfig": {

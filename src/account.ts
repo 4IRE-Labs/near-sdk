@@ -38,18 +38,26 @@ export async function isExistAccount(accountNetwork: AccountNetwork): Promise<bo
     return stateAccount(accountNetwork).then(() => true).catch(() => false)
 }
 
+export function accountIdBySlug(slug: string, networkId?: string): string {
+    const environment = config.environment(networkId)
+    return `${slug}.${environment.helperAccount}`
+}
+
+export function custodianAccountBySlug(slug: string, custodian?: AccountNetwork): AccountNetwork {
+    return custodianAccount(accountIdBySlug(slug), custodian)
+}
+
 export function custodianAccount(accountId: string, custodian?: AccountNetwork): AccountNetwork {
     custodian = custodian || parseAccountNetwork()
-    const environment = config.environment(custodian.networkId)
-    const part = accountId.split('.')
-    if (part[part.length-1] !== environment.helperAccount) {
-        accountId = `${accountId}.${environment.helperAccount}`
-    }
     return <AccountNetwork>{
         accountId: accountId,
         networkId: custodian.networkId,
         keyPair: custodian.keyPair,
     }
+}
+
+export async function createCustodianAccountBySlug(slug: string, amount = '0.05', custodian?: AccountNetwork): Promise<transaction.Outcome<boolean>> {
+    return createCustodianAccount(accountIdBySlug(slug), amount, custodian)
 }
 
 export async function createCustodianAccount(accountId: string, amount = '0.05', custodian?: AccountNetwork): Promise<transaction.Outcome<boolean>> {
@@ -119,8 +127,7 @@ export function mnemonicToAccount(phrase: string, accountId?: string, networkId?
     const account = <AccountNetwork>{}
     account.networkId = connect.parseNetworkId(networkId)
     if (accountId) {
-        const environment = config.environment(account.networkId)
-        account.accountId = `${accountId}.${environment.helperAccount}`
+        account.accountId = accountId
     } else {
         account.accountId = Buffer.from(api.utils.PublicKey.fromString(mnemonic.publicKey).data).toString('hex')
     }

@@ -23,8 +23,7 @@ NEAR_SENDER_PRIVATE_KEY=ed25519:data
 
 ```typescript
 import * as near from '@4ire-labs/near-sdk'
-import * as dotenv from 'dotenv'
-dotenv.config()
+import 'dotenv/config'
 
 async function main() {
     const deposit = '0.05'
@@ -51,7 +50,7 @@ async function main() {
     let newAccount: near.AccountNetwork
 
     // Normal Account
-    newAccount = near.mnemonicToAccount(mnemonic, `sample${+new Date}`)
+    newAccount = near.mnemonicToAccount(mnemonic, near.accountIdBySlug(`sample${+new Date}`))
     console.log('Normal Account:', {
         accountId: newAccount.accountId,
         publicKey: newAccount.keyPair.publicKey.toString(),
@@ -63,7 +62,7 @@ async function main() {
     console.log(trx.outcome.transaction.hash)
 
     // Custodial Account
-    newAccount = near.custodianAccount(`sample${+new Date}`, sender)
+    newAccount = near.custodianAccount(near.accountIdBySlug(`sample${+new Date}`), sender)
     console.log('Custodial Account:', {
         accountId: newAccount.accountId,
         publicKey: newAccount.keyPair.publicKey.toString(),

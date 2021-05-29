@@ -71,14 +71,24 @@ test('createAccount fail by deposit', async () => {
   }
 })
 
+test('createCustodianAccountBySlug', async () => {
+  const slug = `${+ new Date}`
+  const trx = await near.createCustodianAccountBySlug(slug)
+  expect(trx.value).toBe(true)
+  const account =near.custodianAccountBySlug(slug)
+  expect(await near.isExistAccount(account)).toBe(true)
+  expect(account.accountId).toBe(`${slug}.local`)
+})
+
 test('createCustodianAccount', async () => {
-  const trx = await near.createCustodianAccount(`${+ new Date}`)
+  const slug = `${+ new Date}`
+  const trx = await near.createCustodianAccount(slug)
   expect(trx.value).toBe(true)
 })
 
 test('mnemonicToAccount', async () => {
   const actual = await near.mnemonicToAccount(expectMnemonic, 'sample')
-  expect(actual.accountId).toBe('sample.local')
+  expect(actual.accountId).toBe('sample')
 })
 
 test('isExistAccount', async () => {
