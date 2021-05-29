@@ -7,6 +7,7 @@ import * as connect from './connect'
 import * as config from './config'
 import * as transaction from './transaction'
 import * as provider from 'near-api-js/lib/providers/provider'
+import * as util from './util'
 
 const CREDENTIALS_DIR = '.near-credentials'
 
@@ -61,10 +62,6 @@ export async function createAccount(creator: AccountNetwork, newAccount: Account
     const near = await connect.newConnect(creator)
     const creatorAccount = await near.account(creator.accountId)
     const config = <config.Environment>near.config
-    const deposit = api.utils.format.parseNearAmount(amount)
-    if (deposit === null) {
-        throw new Error('Error: wrong amount')
-    }
     const publicKey = newAccount.keyPair.publicKey.toString()
     return creatorAccount.functionCall({
         contractId: config.helperAccount,
@@ -74,7 +71,7 @@ export async function createAccount(creator: AccountNetwork, newAccount: Account
             new_public_key: publicKey,
         },
         gas: new BN('300000000000000'),
-        attachedDeposit: new BN(deposit),
+        attachedDeposit: util.deposit(amount),
     }).then(outcome => transaction.transactionOutcome(outcome))
 }
 

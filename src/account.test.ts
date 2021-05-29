@@ -16,6 +16,13 @@ test('credentialsPath', async () => {
   expect(near.credentialsPath()).toContain('/.near')
 })
 
+test('credentialsPath default', async () => {
+  const prev = process.env.NEAR_CREDENTIALS_PATH
+  process.env.NEAR_CREDENTIALS_PATH = ''
+  expect(near.credentialsPath()).toContain('/.near-credentials')
+  process.env.NEAR_CREDENTIALS_PATH = prev
+})
+
 test('parseAccountNetwork', async () => {
   const actual = near.parseAccountNetwork()
   expect(actual.accountId).toBe('local')
@@ -36,6 +43,7 @@ test('unencryptedFileSystemKeyStore', async () => {
 })
 
 test('createAccount', async () => {
+  jest.setTimeout(10000)
   const bob = near.generateAccount(`bob${+ new Date}`)
   expect(await near.isExistAccount(bob)).toBe(false)
   const trx = await near.createAccount(near.parseAccountNetwork(), bob)
