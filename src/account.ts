@@ -7,14 +7,27 @@ import * as connect from './connect'
 import * as config from './config'
 import * as transaction from './transaction'
 import * as provider from 'near-api-js/lib/providers/provider'
-import * as util from './util'
+import {
+    KeyPair as APIKeyPair,
+} from 'near-api-js/lib/utils/key_pair'
+import {
+    PublicKey,
+} from 'near-api-js/src/utils/key_pair'
+import {
+    toYocto,
+} from './util'
 
 const CREDENTIALS_DIR = '.near-credentials'
+
+export interface KeyPair extends APIKeyPair {
+    readonly publicKey: PublicKey
+    readonly secretKey: string
+}
 
 export interface AccountNetwork {
     networkId: string
     accountId: string
-    keyPair: api.utils.KeyPairEd25519
+    keyPair: KeyPair
 }
 
 export async function deleteAccount(pruneAccount: AccountNetwork, beneficiary?: AccountNetwork): Promise<transaction.Outcome<boolean>> {
@@ -79,7 +92,7 @@ export async function createAccount(creator: AccountNetwork, newAccount: Account
             new_public_key: publicKey,
         },
         gas: new BN('300000000000000'),
-        attachedDeposit: util.deposit(amount),
+        attachedDeposit: toYocto(amount),
     }).then(outcome => transaction.transactionOutcome(outcome))
 }
 
@@ -124,14 +137,21 @@ export function generateAccount(accountId?: string, networkId?: string): Account
 
 export function mnemonicToAccount(phrase: string, accountId?: string, networkId?: string): AccountNetwork {
     const mnemonic = seed.parseSeedPhrase(phrase)
+    return secretKeyToAccount(mnemonic.secretKey, accountId, networkId)
+}
+
+export function secretKeyToAccount(encodedKey: string, accountId?: string, networkId?: string): AccountNetwork {
+    return keyPairToAccount(<KeyPair>api.KeyPair.fromString(encodedKey), accountId, networkId)
+}
+
+export function keyPairToAccount(keyPair: KeyPair, accountId?: string, networkId?: string): AccountNetwork {
     const account = <AccountNetwork>{}
+    account.keyPair = keyPair
     account.networkId = connect.parseNetworkId(networkId)
     if (accountId) {
         account.accountId = accountId
     } else {
-        account.accountId = Buffer.from(api.utils.PublicKey.fromString(mnemonic.publicKey).data).toString('hex')
+        account.accountId = Buffer.from(account.keyPair.publicKey.data).toString('hex')
     }
-    account.keyPair = <api.utils.KeyPairEd25519>api.KeyPair.fromString(mnemonic.secretKey)
     return account
 }
-

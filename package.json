@@ -85,6 +85,7 @@
         "statements": 96
       }
     },
+    "testTimeout": 20000,
     "collectCoverageFrom": [
       "src/*.ts"
     ]

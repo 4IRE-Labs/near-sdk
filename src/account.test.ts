@@ -1,8 +1,7 @@
 import * as near from '.'
 import * as api from 'near-api-js'
-import * as dotenv from 'dotenv'
-import * as path from 'path'
-dotenv.config({ path: path.join(path.dirname(__dirname), 'test.env') })
+import * as util from '../util'
+util.config()
 
 const entropy = Buffer.from('0123456789ABCDEF')
 const expectMnemonic = 'coral maze mimic half fat breeze thought choice drastic boss bacon middle'
@@ -43,7 +42,6 @@ test('unencryptedFileSystemKeyStore', async () => {
 })
 
 test('createAccount', async () => {
-  jest.setTimeout(10000)
   const bob = near.generateAccount(`bob${+ new Date}`)
   expect(await near.isExistAccount(bob)).toBe(false)
   const trx = await near.createAccount(near.parseAccountNetwork(), bob)
@@ -52,7 +50,6 @@ test('createAccount', async () => {
 })
 
 test('deleteAccount', async () => {
-  jest.setTimeout(10000)
   const bob = near.generateAccount(`bob${+ new Date}`)
   expect(await near.isExistAccount(bob)).toBe(false)
   await near.createAccount(near.parseAccountNetwork(), bob)
@@ -62,7 +59,7 @@ test('deleteAccount', async () => {
   expect(await near.isExistAccount(bob)).toBe(false)
 })
 
-test('createAccount fail by deposit', async () => {
+test('createAccount fail by toYocto', async () => {
   try {
     await near.createCustodianAccount(`${+ new Date}`, '')
     expect(true).toBe(false)
