@@ -1,7 +1,16 @@
 import * as api from 'near-api-js'
 import * as config from './config'
 import * as account from './account'
-
+import {
+    Account,
+} from 'near-api-js'
+import {
+    Action,
+} from 'near-api-js/src/transaction'
+import {
+    Outcome,
+    transactionOutcome,
+} from './transaction'
 export interface ConnectParam {
     networkId?: string
     accountId?: string
@@ -49,4 +58,19 @@ export async function connectConfigByParam(param?: ConnectParam): Promise<api.Co
 
 export async function newConnect(account: account.AccountNetwork): Promise<api.Near> {
     return api.connect(await connectConfigByAccount(account))
+}
+
+export async function newAccountConnect(account: account.AccountNetwork): Promise<AccountConnect> {
+    const near = await newConnect(account)
+    return new AccountConnect(near.connection, account.accountId)
+}
+
+export class AccountConnect extends Account {
+    async sendTransaction<Type>(receiverId: string, actionList: Action[]): Promise<Outcome<Type>> {
+        const outcome = await this.signAndSendTransaction({
+            receiverId,
+            actions: actionList,
+        })
+        return transactionOutcome(outcome)
+    }
 }

@@ -13,4 +13,5 @@ test('transactionOutcome not json value return', async () => {
 test('transactionOutcome not base64 value return', async () => {
   const actual = await near.transactionOutcome(<provider.FinalExecutionOutcome>{})
   expect(actual.value).toBe(undefined)
+  expect(actual.transactionId).toBe('undefined:undefined')
 })

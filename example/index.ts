@@ -1,7 +1,32 @@
 import * as near from '@4ire-labs/near-sdk'
 import 'dotenv/config'
 
-async function main() {
+class NFTBasic extends near.NEP4Standard {
+    mintToken(owner_id: string, token_id: number): Promise<near.Outcome<void>> {
+        return this.callRaw({
+            methodName: 'mint_token',
+            args: {owner_id, token_id},
+        })
+    }
+}
+
+async function token() {
+    // NFT Basic
+    const ownerContract = near.custodianAccount(near.accountIdBySlug('nep4'))
+    const NFTContract = await near.Contract.connect(
+        NFTBasic,
+        near.accountIdBySlug('nep4'),
+        ownerContract,
+    )
+    const tokenId = +new Date
+    const mintTrx = await NFTContract.mintToken(ownerContract.accountId, tokenId)
+    console.log(`Minted NFT #${tokenId}:`, {
+        accountId: await NFTContract.getTokenOwner(tokenId),
+        transactionId: mintTrx.transactionId,
+    })
+}
+
+async function account() {
     const deposit = '0.05'
     const entropy = Buffer.from('0123456789ABCDEF')
     const mnemonic = near.generateMnemonic(entropy)
@@ -27,28 +52,33 @@ async function main() {
 
     // Normal Account
     newAccount = near.mnemonicToAccount(mnemonic, near.accountIdBySlug(`sample${+new Date}`))
-    console.log('Normal Account:', {
-        accountId: newAccount.accountId,
-        publicKey: newAccount.keyPair.publicKey.toString(),
-    })
     await near.writeUnencryptedFileSystemKeyStore(newAccount)
     trx = await near.createAccount(sender, newAccount, deposit)
-    console.log(trx.outcome.transaction.hash)
+    console.log('Created normal account:', {
+        accountId: newAccount.accountId,
+        publicKey: newAccount.keyPair.publicKey.toString(),
+        transactionId: trx.transactionId,
+    })
     trx = await near.deleteAccount(newAccount)
-    console.log(trx.outcome.transaction.hash)
+    console.log('Deleted transactionId:', trx.transactionId)
 
     // Custodial Account
     newAccount = near.custodianAccount(near.accountIdBySlug(`sample${+new Date}`), sender)
-    console.log('Custodial Account:', {
+    trx = await near.createAccount(sender, newAccount, deposit)
+    await near.writeUnencryptedFileSystemKeyStore(newAccount)
+    console.log('Created custodial account:', {
         accountId: newAccount.accountId,
         publicKey: newAccount.keyPair.publicKey.toString(),
+        transactionId: trx.transactionId,
     })
-    await near.writeUnencryptedFileSystemKeyStore(newAccount)
-    trx = await near.createAccount(sender, newAccount, deposit)
-    console.log(trx.outcome.transaction.hash)
-    console.log('state:', await near.stateAccount(newAccount))
     trx = await near.deleteAccount(newAccount)
-    console.log(trx.outcome.transaction.hash)
+    console.log('Deleted transactionId:', trx.transactionId)
+}
+
+async function main() {
+    await token()
+    await account()
 }
 
 main().catch(console.error)
+

@@ -1,6 +1,6 @@
 {
   "name": "@4ire-labs/near-sdk",
-  "version": "1.0.0-beta.6",
+  "version": "1.0.0-beta.7",
   "license": "UNLICENSED",
   "description": "SDK for NEAR Protocol",
   "keywords": [
@@ -18,7 +18,7 @@
   },
   "scripts": {
     "coveralls": "coveralls < coverage/lcov.info",
-    "setup-near": "ts-node script/setup",
+    "setup-near": "ts-node util/setup",
     "setup": "yarn up && yarn setup-near",
     "up": "yarn down && docker-compose up --detach",
     "down": "docker-compose down --volumes",
@@ -28,10 +28,10 @@
     "docs": "typedoc --entryPoints src/index.ts --out build/docs",
     "release": "yarn version --prerelease && yarn build && cd build && npm publish --access public",
     "package": "mkdir -p build && json-mask 'name,version,license,description,repository,main,types,dependencies,keywords' package.json > build/package.json && cp readme.md build/readme.md",
-    "build": "yarn package && tsc",
+    "build": "yarn package && tsc || exit 0",
     "qa": "yarn lint && yarn test && yarn test-example",
     "test-example": "yarn build && yarn clean-example && cp test.env example/.env && cd example && yarn install && yarn test",
-    "test": "jest --coverage"
+    "test": "jest --detectOpenHandles --coverage"
   },
   "eslintConfig": {
     "root": true,
@@ -87,7 +87,7 @@
     },
     "testTimeout": 20000,
     "collectCoverageFrom": [
-      "src/*.ts"
+      "src/**/*.ts"
     ]
   },
   "devDependencies": {
