@@ -2,6 +2,7 @@ import * as api from 'near-api-js'
 import * as config from './config'
 import * as util from './util'
 import {
+    toGas,
     toYocto,
 } from './util'
 import * as provider from 'near-api-js/lib/providers/provider'
@@ -30,7 +31,7 @@ import {
     FunctionCallOptions,
 } from 'near-api-js/lib/account'
 
-const DEFAULT_FUNC_CALL_GAS = new BN('30000000000000')
+const DEFAULT_FUNC_CALL_GAS = new BN('300000000000000')
 
 export async function fetchContract(accountId: string, networkId?: string): Promise<Uint8Array> {
     const rpc = new api.providers.JsonRpcProvider(config.environment(networkId).nodeUrl)
@@ -61,8 +62,8 @@ export interface ChangeMethod {
     methodName: string;
     /** named arguments to pass the method `{ field: any }` */
     args: Record<string, unknown>;
-    /** max amount of gas that method call can use */
-    gas?: string;
+    /** max amount of Tera Gas that method call can use */
+    teraGas?: string;
     /** amount of NEAR to send together with the call */
     attachedDeposit?: string;
     /** Metadata to send the NEAR Wallet if using it to sign transactions  */
@@ -110,7 +111,7 @@ export async function deployContract<Type>(
         actionList.push(functionCallAction(
             props.init.methodName,
             props.init.args || {},
-            parseGas(props.init.gas),
+            parseGas(props.init.teraGas),
             parseDeposit(props.init.attachedDeposit),
         ))
     }
@@ -119,8 +120,8 @@ export async function deployContract<Type>(
     return result
 }
 
-function parseGas(gas: string): BN {
-    return (gas ? toYocto(gas) : DEFAULT_FUNC_CALL_GAS)
+function parseGas(terraGas: string): BN {
+    return (terraGas ? new BN(toGas(terraGas)) : DEFAULT_FUNC_CALL_GAS)
 }
 
 function parseDeposit(deposit: string): BN {
@@ -131,7 +132,7 @@ function createFunctionCallOptions(contractId: string, method: ChangeMethod): Fu
     const {
         methodName,
         args,
-        gas,
+        teraGas,
         attachedDeposit,
         walletMeta,
         walletCallbackUrl,
@@ -140,7 +141,7 @@ function createFunctionCallOptions(contractId: string, method: ChangeMethod): Fu
         contractId,
         methodName,
         args,
-        gas: parseGas(gas),
+        gas: parseGas(teraGas),
         attachedDeposit: parseDeposit(attachedDeposit),
         walletMeta,
         walletCallbackUrl,
