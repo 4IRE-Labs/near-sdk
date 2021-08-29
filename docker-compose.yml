@@ -2,7 +2,7 @@ version: "3.9"
 services:
 
   near:
-    image: nearprotocol/nearup:0.9.1
+    image: nearprotocol/nearup:1.2.0
     command: run localnet --verbose
     init: true
     ports:
