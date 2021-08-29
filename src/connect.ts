@@ -1,16 +1,27 @@
-import * as api from 'near-api-js'
-import * as config from './config'
-import * as account from './account'
 import {
+    Near,
+    ConnectConfig,
+    connect,
+    KeyPair as NearKeyPair,
     Account,
 } from 'near-api-js'
+import {
+    InMemoryKeyStore,
+} from 'near-api-js/lib/key_stores'
 import {
     Action,
 } from 'near-api-js/src/transaction'
 import {
+    environment,
+} from './config'
+import {
+    AccountNetwork,
+} from './account'
+import {
     Outcome,
     transactionOutcome,
 } from './transaction'
+
 export interface ConnectParam {
     networkId?: string
     accountId?: string
@@ -29,7 +40,7 @@ export function parsePrivateKey(encodedKey?: string): string {
     return encodedKey || process.env.NEAR_SENDER_PRIVATE_KEY || ''
 }
 
-export async function connectConfigByAccount(account: account.AccountNetwork): Promise<api.ConnectConfig> {
+export async function connectConfigByAccount(account: AccountNetwork): Promise<ConnectConfig> {
     const param = <ConnectParam>{
         networkId: account.networkId,
         accountId: account.accountId,
@@ -38,7 +49,7 @@ export async function connectConfigByAccount(account: account.AccountNetwork): P
     return connectConfigByParam(param)
 }
 
-export async function connectConfigByParam(param?: ConnectParam): Promise<api.ConnectConfig> {
+export async function connectConfigByParam(param?: ConnectParam): Promise<ConnectConfig> {
     param = param || <ConnectParam>{}
     param.networkId = parseNetworkId(param.networkId)
     param.accountId = parseAccountId(param.accountId)
@@ -47,20 +58,20 @@ export async function connectConfigByParam(param?: ConnectParam): Promise<api.Co
     if (!param.encodedKey || !param.accountId) {
         throw new Error('Error: empty encodedKey or accountId')
     }
-    const keyStore = new api.keyStores.InMemoryKeyStore()
-    const keyPair = api.KeyPair.fromString(param.encodedKey)
+    const keyStore = new InMemoryKeyStore()
+    const keyPair = NearKeyPair.fromString(param.encodedKey)
     await keyStore.setKey(param.networkId, param.accountId, keyPair)
     return {
         keyStore,
-        ...config.environment(param.networkId),
+        ...environment(param.networkId),
     }
 }
 
-export async function newConnect(account: account.AccountNetwork): Promise<api.Near> {
-    return api.connect(await connectConfigByAccount(account))
+export async function newConnect(account: AccountNetwork): Promise<Near> {
+    return connect(await connectConfigByAccount(account))
 }
 
-export async function newAccountConnect(account: account.AccountNetwork): Promise<AccountConnect> {
+export async function newAccountConnect(account: AccountNetwork): Promise<AccountConnect> {
     const near = await newConnect(account)
     return new AccountConnect(near.connection, account.accountId)
 }

@@ -1,14 +1,21 @@
-import * as near from '../'
-import * as util from '../../util'
-util.config()
+import {
+  accountIdBySlug,
+  custodianAccount,
+  NEP4Standard,
+  Contract,
+} from '../'
+import {
+  config
+} from '../../util'
+config()
 
 function newConnectContract(accountId: string) {
-  const sender = near.custodianAccount(accountId)
-  return near.Contract.connect(near.NEP4Standard, near.accountIdBySlug('nep4'), sender)
+  const sender = custodianAccount(accountId)
+  return Contract.connect(NEP4Standard, accountIdBySlug('nep4'), sender)
 }
 
-const aliceId = near.accountIdBySlug('alice')
-const bobId = near.accountIdBySlug('bob')
+const aliceId = accountIdBySlug('alice')
+const bobId = accountIdBySlug('bob')
 
 test('access', async () => {
   const aliceContract = await newConnectContract(aliceId)

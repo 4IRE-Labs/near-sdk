@@ -1,11 +1,12 @@
-import * as api from 'near-api-js'
-import * as config from './config'
-import * as util from './util'
 import {
-    toGas,
-    toYocto,
-} from './util'
-import * as provider from 'near-api-js/lib/providers/provider'
+    FunctionCallOptions,
+} from 'near-api-js/lib/account'
+import {
+    ContractCodeView,
+} from 'near-api-js/lib/providers/provider'
+import {
+    JsonRpcProvider
+} from 'near-api-js/lib/providers'
 import BN from 'bn.js'
 import {
     fullAccessKey,
@@ -17,6 +18,13 @@ import {
     transfer as transferAction,
 } from 'near-api-js/lib/transaction'
 import {
+    environment,
+} from './config'
+import {
+    toGas,
+    toYocto,
+} from './util'
+import {
     AccountNetwork,
     isExistAccount,
     parseAccountNetwork,
@@ -27,15 +35,12 @@ import {
     Outcome,
     transactionOutcome,
 } from './index'
-import {
-    FunctionCallOptions,
-} from 'near-api-js/lib/account'
 
 const DEFAULT_FUNC_CALL_GAS = new BN('300000000000000')
 
 export async function fetchContract(accountId: string, networkId?: string): Promise<Uint8Array> {
-    const rpc = new api.providers.JsonRpcProvider(config.environment(networkId).nodeUrl)
-    const result = await rpc.query<provider.ContractCodeView>({
+    const rpc = new JsonRpcProvider(environment(networkId).nodeUrl)
+    const result = await rpc.query<ContractCodeView>({
         request_type: 'view_code',
         finality: 'final',
         account_id: accountId
@@ -95,7 +100,7 @@ export async function deployContract<Type>(
         actionList.push(createAccountAction())
     }
     if (isNotExistAccount && props.amount) {
-        const deposit = util.toYocto(props.amount)
+        const deposit = toYocto(props.amount)
         if (deposit.gtn(0)) {
             actionList.push(transferAction(deposit))
         }
@@ -120,11 +125,11 @@ export async function deployContract<Type>(
     return result
 }
 
-function parseGas(terraGas: string): BN {
+function parseGas(terraGas?: string): BN {
     return (terraGas ? new BN(toGas(terraGas)) : DEFAULT_FUNC_CALL_GAS)
 }
 
-function parseDeposit(deposit: string): BN {
+function parseDeposit(deposit?: string): BN {
     return (deposit ? toYocto(deposit) : new BN(0))
 }
 

@@ -46,3 +46,16 @@ test('deploy and init', async () => {
   expect(toNear(state.amount)).toBeGreaterThanOrEqual(9)
   expect(result.outcome.value).toEqual('')
 })
+
+test('deploy enough balance to cover storage', async () => {
+  const code = await near.fetchContract('contract.paras.near', 'mainnet')
+  expect(code).toBeTruthy()
+  const accountId = `contract${+ new Date}`
+  const contract = near.generateAccount(accountId)
+  try {
+    await near.deployContract<boolean>(contract, code)
+    expect(true).toBe(false)
+  } catch (e) {
+    expect(e.message).toContain('wouldn\'t have enough balance to cover storage, required to have 384530000000000000000000 yoctoNEAR more')
+  }
+})

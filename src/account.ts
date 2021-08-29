@@ -1,25 +1,40 @@
-import * as seed from 'near-seed-phrase'
-import * as api from 'near-api-js'
-import * as path from 'path'
-import * as os from 'os'
-import BN from 'bn.js'
-import * as connect from './connect'
-import * as config from './config'
-import * as transaction from './transaction'
-import * as provider from 'near-api-js/lib/providers/provider'
 import {
-    KeyPair as APIKeyPair,
-} from 'near-api-js/lib/utils/key_pair'
+    generateSeedPhrase,
+    parseSeedPhrase,
+} from 'near-seed-phrase'
+import {
+    KeyPair as NearKeyPair,
+} from 'near-api-js'
+import {
+    Account as NearAccount,
+} from 'near-api-js'
+import BN from 'bn.js'
 import {
     PublicKey,
-} from 'near-api-js/src/utils/key_pair'
+    KeyPairEd25519,
+} from 'near-api-js/lib/utils'
+import {
+    AccountView,
+} from 'near-api-js/lib/providers/provider'
+import {
+    newConnect,
+    parseNetworkId,
+    parseAccountId,
+    parsePrivateKey,
+} from './connect'
+import {
+    Environment,
+    environment,
+} from './config'
 import {
     toYocto,
 } from './util'
+import {
+    Outcome,
+    transactionOutcome,
+} from './transaction'
 
-const CREDENTIALS_DIR = '.near-credentials'
-
-export interface KeyPair extends APIKeyPair {
+export interface KeyPair extends NearKeyPair {
     readonly publicKey: PublicKey
     readonly secretKey: string
 }
@@ -30,19 +45,19 @@ export interface AccountNetwork {
     keyPair: KeyPair
 }
 
-export async function deleteAccount(pruneAccount: AccountNetwork, beneficiary?: AccountNetwork): Promise<transaction.Outcome<boolean>> {
+export async function deleteAccount(pruneAccount: AccountNetwork, beneficiary?: AccountNetwork): Promise<Outcome<boolean>> {
     beneficiary = beneficiary || parseAccountNetwork()
     const account = await accountConnect(pruneAccount)
     return account.deleteAccount(beneficiary.accountId)
-        .then(outcome => transaction.transactionOutcome(outcome))
+        .then(outcome => transactionOutcome(outcome))
 }
 
-export async function accountConnect(account: AccountNetwork): Promise<api.Account> {
-    const near = await connect.newConnect(account)
+export async function accountConnect(account: AccountNetwork): Promise<NearAccount> {
+    const near = await newConnect(account)
     return near.account(account.accountId)
 }
 
-export async function stateAccount(accountNetwork: AccountNetwork): Promise<provider.AccountView> {
+export async function stateAccount(accountNetwork: AccountNetwork): Promise<AccountView> {
     const account = await accountConnect(accountNetwork)
     return account.state()
 }
@@ -52,8 +67,7 @@ export async function isExistAccount(accountNetwork: AccountNetwork): Promise<bo
 }
 
 export function accountIdBySlug(slug: string, networkId?: string): string {
-    const environment = config.environment(networkId)
-    return `${slug}.${environment.helperAccount}`
+    return `${slug}.${environment(networkId).helperAccount}`
 }
 
 export function custodianAccountBySlug(slug: string, custodian?: AccountNetwork): AccountNetwork {
@@ -69,20 +83,20 @@ export function custodianAccount(accountId: string, custodian?: AccountNetwork):
     }
 }
 
-export async function createCustodianAccountBySlug(slug: string, amount = '0.05', custodian?: AccountNetwork): Promise<transaction.Outcome<boolean>> {
+export async function createCustodianAccountBySlug(slug: string, amount = '0.05', custodian?: AccountNetwork): Promise<Outcome<boolean>> {
     return createCustodianAccount(accountIdBySlug(slug), amount, custodian)
 }
 
-export async function createCustodianAccount(accountId: string, amount = '0.05', custodian?: AccountNetwork): Promise<transaction.Outcome<boolean>> {
+export async function createCustodianAccount(accountId: string, amount = '0.05', custodian?: AccountNetwork): Promise<Outcome<boolean>> {
     custodian = custodian || parseAccountNetwork()
     const newAccount = custodianAccount(accountId, custodian)
     return createAccount(custodian, newAccount, amount)
 }
 
-export async function createAccount(creator: AccountNetwork, newAccount: AccountNetwork, amount = '0.05'): Promise<transaction.Outcome<boolean>> {
-    const near = await connect.newConnect(creator)
+export async function createAccount(creator: AccountNetwork, newAccount: AccountNetwork, amount = '0.05'): Promise<Outcome<boolean>> {
+    const near = await newConnect(creator)
     const creatorAccount = await near.account(creator.accountId)
-    const config = <config.Environment>near.config
+    const config = <Environment>near.config
     const publicKey = newAccount.keyPair.publicKey.toString()
     return creatorAccount.functionCall({
         contractId: config.helperAccount,
@@ -93,38 +107,19 @@ export async function createAccount(creator: AccountNetwork, newAccount: Account
         },
         gas: new BN('300000000000000'),
         attachedDeposit: toYocto(amount),
-    }).then(outcome => transaction.transactionOutcome(outcome))
-}
-
-export function credentialsPath(): string {
-    return path.resolve(process.env.NEAR_CREDENTIALS_PATH || path.join(os.homedir(), CREDENTIALS_DIR))
+    }).then(outcome => transactionOutcome(outcome))
 }
 
 export function parseAccountNetwork(accountId?: string, encodedKey?: string, networkId?: string): AccountNetwork {
     const account = <AccountNetwork>{}
-    account.networkId = connect.parseNetworkId(networkId)
-    account.accountId = connect.parseAccountId(accountId)
-    account.keyPair = <api.utils.KeyPairEd25519>api.KeyPair.fromString(connect.parsePrivateKey(encodedKey))
+    account.networkId = parseNetworkId(networkId)
+    account.accountId = parseAccountId(accountId)
+    account.keyPair = <KeyPairEd25519>NearKeyPair.fromString(parsePrivateKey(encodedKey))
     return account
-}
-
-export async function readUnencryptedFileSystemKeyStore(accountId: string, networkId?: string): Promise<AccountNetwork> {
-    const account = <AccountNetwork>{
-        accountId
-    }
-    const keyStore = new api.keyStores.UnencryptedFileSystemKeyStore(credentialsPath())
-    account.networkId = connect.parseNetworkId(networkId)
-    account.keyPair = <api.utils.KeyPairEd25519>await keyStore.getKey(account.networkId, account.accountId)
-    return account
-}
-
-export async function writeUnencryptedFileSystemKeyStore(account: AccountNetwork): Promise<void> {
-    const keyStore = new api.keyStores.UnencryptedFileSystemKeyStore(credentialsPath())
-    return keyStore.setKey(account.networkId, account.accountId, account.keyPair)
 }
 
 export function generateMnemonic(entropy?: Buffer): string {
-    return seed.generateSeedPhrase(entropy).seedPhrase
+    return generateSeedPhrase(entropy).seedPhrase
 }
 
 export function generateAccountByEntropy(entropy?: Buffer, accountId?: string, networkId?: string): AccountNetwork {
@@ -136,18 +131,18 @@ export function generateAccount(accountId?: string, networkId?: string): Account
 }
 
 export function mnemonicToAccount(phrase: string, accountId?: string, networkId?: string): AccountNetwork {
-    const mnemonic = seed.parseSeedPhrase(phrase)
+    const mnemonic = parseSeedPhrase(phrase)
     return secretKeyToAccount(mnemonic.secretKey, accountId, networkId)
 }
 
 export function secretKeyToAccount(encodedKey: string, accountId?: string, networkId?: string): AccountNetwork {
-    return keyPairToAccount(<KeyPair>api.KeyPair.fromString(encodedKey), accountId, networkId)
+    return keyPairToAccount(<KeyPair>NearKeyPair.fromString(encodedKey), accountId, networkId)
 }
 
 export function keyPairToAccount(keyPair: KeyPair, accountId?: string, networkId?: string): AccountNetwork {
     const account = <AccountNetwork>{}
     account.keyPair = keyPair
-    account.networkId = connect.parseNetworkId(networkId)
+    account.networkId = parseNetworkId(networkId)
     if (accountId) {
         account.accountId = accountId
     } else {
