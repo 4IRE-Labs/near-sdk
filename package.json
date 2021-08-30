@@ -1,6 +1,6 @@
 {
   "name": "@4ire-labs/near-sdk",
-  "version": "1.0.0-beta.8",
+  "version": "1.0.0-beta.9-rc.3",
   "license": "UNLICENSED",
   "description": "SDK for NEAR Protocol",
   "keywords": [
@@ -10,10 +10,9 @@
     "nearprotocol"
   ],
   "repository": "https://github.com/4ire-labs/near-sdk.git",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "src/index.ts",
   "dependencies": {
-    "near-api-js": "^0.41.0",
+    "near-api-js": "^0.42.0",
     "near-seed-phrase": "^0.2.0"
   },
   "scripts": {
@@ -27,8 +26,10 @@
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "docs": "typedoc --entryPoints src/index.ts --out build/docs",
     "release": "yarn version --prerelease && yarn build && cd build && npm publish --access public",
-    "package": "mkdir -p build && json-mask 'name,version,license,description,repository,main,types,dependencies,keywords' package.json > build/package.json && cp readme.md build/readme.md",
-    "build": "yarn package && tsc || exit 0",
+    "build": "yarn build-package && yarn build-esm && yarn build-cjs",
+    "build-package": "mkdir -p build && ts-node util/package > build/package.json && cp readme.md build/readme.md",
+    "build-esm": "tsc -p tsconfig-esm.json  || exit 0",
+    "build-cjs": "tsc || exit 0",
     "qa": "yarn lint && yarn test && yarn test-example",
     "test-example": "yarn build && yarn clean-example && cp test.env example/.env && cd example && yarn install && yarn test",
     "test": "jest --detectOpenHandles --coverage"
