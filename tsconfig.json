@@ -1,33 +1,34 @@
 {
   "compilerOptions": {
-        "esModuleInterop": true,
-        "lib": [
-            "es2015",
-            "esnext",
-            "dom"
-        ],
-        "module": "commonjs",
-        "target": "esnext",
-        "moduleResolution": "node",
-        "alwaysStrict": true,
-        "outDir": "./build",
-        "declaration": true,
-        "preserveSymlinks": true,
-        "preserveWatchOutput": true,
-        "pretty": false,
-        "forceConsistentCasingInFileNames": true,
-        "noFallthroughCasesInSwitch": true,
-        "noImplicitAny": false,
-        "noImplicitReturns": true,
-        "noUnusedLocals": true,
-        "experimentalDecorators": true,
-        "resolveJsonModule": true,
+    "outDir": "build/cjs",
+    "lib": [
+      "es2016",
+      "esnext"
+    ],
+    "module": "commonjs",
+    "target": "esnext",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "alwaysStrict": true,
+    "declaration": true,
+    "preserveSymlinks": true,
+    "preserveWatchOutput": true,
+    "pretty": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true
   },
   "include": [
     "src/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
+    "src/index.ts",
+    "src/os.ts",
     "**/*.test.ts"
   ]
 }
